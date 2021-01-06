@@ -43,7 +43,7 @@ test_transform = transforms.Compose([
 ])
 
 trainset = PixWiseDataset(
-    root_dir=cfg['dataset']['root'],
+    root_dir=cfg['dataset']['trainroot'],
     csv_file=cfg['dataset']['train_set'],
     map_size=cfg['model']['map_size'],
     transform=train_transform,

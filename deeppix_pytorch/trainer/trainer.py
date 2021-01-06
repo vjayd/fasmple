@@ -53,8 +53,8 @@ class Trainer(BaseTrainer):
             checkpoint = torch.load(saved_name)
             self.network.load_state_dict(checkpoint['state_dict'])
             self.optimizer.load_state_dict(checkpoint['optimizer'])
-            epoch = checkpoint['epoch']
-            
+            epoch_stored = checkpoint['epoch']
+            print('Recent epoch ',epoch_stored)
 
         for epoch, (img, mask, label) in enumerate(self.trainloader):
             img, mask, label = img.to(self.device), mask.to(self.device), label.to(self.device)

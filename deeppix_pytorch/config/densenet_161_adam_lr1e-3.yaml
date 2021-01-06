@@ -2,13 +2,14 @@ output_dir: 'experiments/output'
 log_dir: 'experiments/log'
 device: 'cuda:0'
 dataset:
-  name: 'rose'
+  trainroot: ''
+  name: 'anti-spoof'
   root: './'
   augmentation:
     horizontal_flip: True
     vertial_flip: False
     rotation: 10
-  train_set: 'trainpre.csv'
+  train_set: 'trainpre_jan6.csv'
   test_set: 'testpre.csv'
   mean: [0.5,0.5,0.5]
   sigma: [0.5,0.5,0.5]
