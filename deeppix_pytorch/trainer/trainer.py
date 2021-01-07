@@ -72,23 +72,34 @@ class Trainer(BaseTrainer):
             self.train_loss_metric.update(loss.item())
             self.train_acc_metric.update(acc)
 
-            print('Epoch: {}, iter: {}, loss: {}, acc: {}'.format(epoch, epoch * len(self.trainloader) + i, self.train_loss_metric.avg, self.train_acc_metric.avg))
+        print('Epoch: {}, iter: {}, loss: {}, acc: {}'.format(epoch, 0, self.train_loss_metric.avg, self.train_acc_metric.avg))
 
 
     def train(self):
 
         for epoch in range(self.cfg['train']['num_epochs']):
             self.train_one_epoch(epoch)
-            #epoch_acc = self.validate(epoch)
+            self.save_model(epoch)
+            epoch_acc = self.validate(epoch)
+            print(epoch_acc)
             # if epoch_acc > self.best_val_acc:
             #     self.best_val_acc = epoch_acc
-            self.save_model(epoch)
+            #self.save_model(epoch)
 
 
     def validate(self, epoch):
-        self.network.eval()
+       # self.network.eval()
         self.val_loss_metric.reset(epoch)
         self.val_acc_metric.reset(epoch)
+
+        saved_name = os.path.join(self.cfg['output_dir'], '{}_{}.pth'.format(self.cfg['model']['base'], self.cfg['dataset']['name']))
+        if os.path.exists(saved_name):
+           checkpoint = torch.load(saved_name)
+           self.network.load_state_dict(checkpoint['state_dict'])
+           self.optimizer.load_state_dict(checkpoint['optimizer'])
+           epoch_stored = checkpoint['epoch']
+           print('Recent epoch ',epoch_stored)
+
 
         seed = randint(0, len(self.testloader)-1)
         with torch.no_grad():
