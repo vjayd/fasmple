@@ -56,7 +56,7 @@ class Trainer(BaseTrainer):
             epoch_stored = checkpoint['epoch']
             print('Recent epoch ',epoch_stored)
 
-        for epoch, (img, mask, label) in enumerate(self.trainloader):
+        for i, (img, mask, label) in enumerate(self.trainloader):
             img, mask, label = img.to(self.device), mask.to(self.device), label.to(self.device)
             net_mask, net_label = self.network(img)
             self.optimizer.zero_grad()
@@ -72,7 +72,7 @@ class Trainer(BaseTrainer):
             self.train_loss_metric.update(loss.item())
             self.train_acc_metric.update(acc)
 
-            print('Epoch: {}, iter: {}, loss: {}, acc: {}'.format(epoch, epoch * len(self.trainloader) + epoch, self.train_loss_metric.avg, self.train_acc_metric.avg))
+            print('Epoch: {}, iter: {}, loss: {}, acc: {}'.format(epoch, epoch * len(self.trainloader) + i, self.train_loss_metric.avg, self.train_acc_metric.avg))
 
 
     def train(self):
