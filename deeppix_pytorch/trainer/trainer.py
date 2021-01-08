@@ -55,7 +55,7 @@ class Trainer(BaseTrainer):
             self.optimizer.load_state_dict(checkpoint['optimizer'])
             epoch_stored = checkpoint['epoch']
             print('Recent epoch ',epoch_stored)
-
+            
         for i, (img, mask, label) in enumerate(self.trainloader):
             img, mask, label = img.to(self.device), mask.to(self.device), label.to(self.device)
             net_mask, net_label = self.network(img)
@@ -88,33 +88,25 @@ class Trainer(BaseTrainer):
 
 
     def validate(self, epoch):
-       # self.network.eval()
+        self.network.eval()
         self.val_loss_metric.reset(epoch)
         self.val_acc_metric.reset(epoch)
 
-        saved_name = os.path.join(self.cfg['output_dir'], '{}_{}.pth'.format(self.cfg['model']['base'], self.cfg['dataset']['name']))
-        if os.path.exists(saved_name):
-           checkpoint = torch.load(saved_name)
-           self.network.load_state_dict(checkpoint['state_dict'])
-           self.optimizer.load_state_dict(checkpoint['optimizer'])
-           epoch_stored = checkpoint['epoch']
-           print('Recent epoch ',epoch_stored)
-
 
         seed = randint(0, len(self.testloader)-1)
-        with torch.no_grad():
-            for i, (img, mask, label) in enumerate(self.testloader):
-                img, mask, label = img.to(self.device), mask.to(self.device), label.to(self.device)
-                net_mask, net_label = self.network(img)
-                loss = self.loss(net_mask, net_label, mask, label)
-    
-                # Calculate predictions
-                preds, score = predict(net_mask, net_label, score_type=self.cfg['test']['score_type'])
-                targets, _ = predict(mask, label, score_type=self.cfg['test']['score_type'])
-                acc = calc_acc(preds, targets)
-                # Update metrics
-                self.val_loss_metric.update(loss.item())
-                self.val_acc_metric.update(acc)
+        
+        for i, (img, mask, label) in enumerate(self.testloader):
+            img, mask, label = img.to(self.device), mask.to(self.device), label.to(self.device)
+            net_mask, net_label = self.network(img)
+            loss = self.loss(net_mask, net_label, mask, label)
+
+            # Calculate predictions
+            preds, score = predict(net_mask, net_label, score_type=self.cfg['test']['score_type'])
+            targets, _ = predict(mask, label, score_type=self.cfg['test']['score_type'])
+            acc = calc_acc(preds, targets)
+            # Update metrics
+            self.val_loss_metric.update(loss.item())
+            self.val_acc_metric.update(acc)
 
             
             if i == seed:

@@ -1,10 +1,11 @@
 import os
 import torch
 from torchvision import transforms, datasets
-from trainer.trainer import Trainer
+from trainer.trainer_non import Trainer_Resnet
 from torch.utils.tensorboard import SummaryWriter
-from models.loss import PixWiseBCELoss
+from models.loss import PixWiseBCELoss, CrossEntloss
 from datasets.PixWiseDataset import PixWiseDataset
+from datasets.ResnetDataset import ResnetDataset
 from utils.utils import read_cfg, get_optimizer, build_network, get_device
 
 #os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   # see issue #152
@@ -19,7 +20,8 @@ network = build_network(cfg)
 
 optimizer = get_optimizer(cfg, network)
 
-loss = PixWiseBCELoss(beta=cfg['train']['loss']['beta'])
+#loss = PixWiseBCELoss(beta=cfg['train']['loss']['beta'])
+loss = CrossEntloss()
 
 writer = SummaryWriter(cfg['log_dir'])
 
@@ -42,7 +44,7 @@ test_transform = transforms.Compose([
     transforms.Normalize(cfg['dataset']['mean'], cfg['dataset']['sigma'])
 ])
 
-trainset = PixWiseDataset(
+trainset = ResnetDataset(
     root_dir=cfg['dataset']['train_data'],
     csv_file=cfg['dataset']['train_set'],
     map_size=cfg['model']['map_size'],
@@ -50,7 +52,7 @@ trainset = PixWiseDataset(
     smoothing=cfg['model']['smoothing']
 )
 
-testset = PixWiseDataset(
+testset = ResnetDataset(
     root_dir=cfg['dataset']['test_data'],
     csv_file=cfg['dataset']['test_set'],
     map_size=cfg['model']['map_size'],
@@ -72,7 +74,7 @@ testloader = torch.utils.data.DataLoader(
     num_workers=0
 )
 
-trainer = Trainer(
+trainer = Trainer_Resnet(
     cfg=cfg,
     network=network,
     optimizer=optimizer,

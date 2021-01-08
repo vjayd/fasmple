@@ -1,5 +1,8 @@
-output_dir: '/content/drive/MyDrive/preprocess/experiments/output'
-log_dir: '/content/drive/MyDrive/preprocess/experiments/log'
+#output_dir: '/content/drive/MyDrive/preprocess/experiments/output'
+#log_dir: '/content/drive/MyDrive/preprocess/experiments/log'
+output_dir: 'experiments/output'
+log_dir: 'experiments/log'
+
 device: 'cuda:0'
 dataset:
   trainroot: ''
@@ -9,15 +12,17 @@ dataset:
     horizontal_flip: True
     vertial_flip: False
     rotation: 10
-  train_data: './train_preprocess_8pm'
-  test_data: './test_preprocess_jan6_8pm'
+  train_data: '/media/vijay/1TB/FACE_ANTI-SPOOFING/antispoof_data/final_data/CelebA_Spoof/Data/train_preprocess_8pm'
+  test_data: '/media/vijay/1TB/FACE_ANTI-SPOOFING/antispoof_data/final_data/CelebA_Spoof/Data/test_preprocess_jan6_8pm'
+  #train_data: './train_preprocess_8pm'
+  #test_data: './test_preprocess_jan6_8pm'
   train_set: 'trainpre_jan6_8pm.csv'
   test_set: 'testpre_jan6_8pm.csv'
   mean: [0.5,0.5,0.5]
   sigma: [0.5,0.5,0.5]
 
 model:
-  base: 'densenet_161'
+  base: 'resnet_18'
   pretrained: False
   num_output: 2
   image_size: [224,224]
