@@ -76,7 +76,8 @@ class Trainer_Resnet(BaseTrainer):
             loss = self.loss(net_label,label)
             loss.backward()
             self.optimizer.step()
-
+            
+            spoof+=label.sum().item()
             ################################################
             _, predicted = torch.max(net_label.data, 1)
             total += label.size(0)
@@ -103,7 +104,7 @@ class Trainer_Resnet(BaseTrainer):
             self.train_acc_metric.update(acc)
             break
         print('Total live images ',(total-spoof),' : Total spoof images ',spoof)
-        print('Accuracy of the network on the test images: %d %%' % (
+        print('Accuracy of the network on the train images: %d %%' % (
             100 * correct / total))
         precision =  tp/(tp+fp) #The proportion of 
         recall =  tp/(tp+fn)
@@ -148,6 +149,7 @@ class Trainer_Resnet(BaseTrainer):
 
 
              ################################################
+             spoof+=label.sum().item()
             _, predicted = torch.max(net_label.data, 1)
             total += label.size(0)
             correct += (predicted == label).sum().item()
@@ -191,14 +193,22 @@ class Trainer_Resnet(BaseTrainer):
 #                add_images_tb(self.cfg, epoch, img, preds, targets, score, self.writer)
 
             
-            
-        print('Total live images ',(total-spoof),' : Total spoof images ',spoof)
+        n_live = total-spoof
+        n_spoof = spoof
+        apcer = tp/n_spoof #attack presentation classification error rates
+        bpcer = tn/n_live #bonafide classification error rate
+        acer = (apcer+ bpcer) /2   #average classification error rate
+        precision =  tp/(tp+fp) 
+        recall =  tp/(tp+fn)
+        
+        print('Total live images : {},  Total spoof images : {}'.format(n_live, spoof))
+        print('True positive :',tp, ' False positive :', fp, 'False Negative :', fn, 'True negative :', tn)
+        print('APCER : {}, BPCER : {}, ACER :{}, Precision :{}, Recall :{} '.format(apcer, bpcer, acer, precision, recall))
         print('Accuracy of the network on the test images: %d %%' % (
             100 * correct / total))
-        precision =  tp/(tp+fp) #The proportion of 
-        recall =  tp/(tp+fn)
-        print('Precision ', precision, 'Recall ', recall)
-        print('Epoch: {}, iter: {}, loss: {}, acc: {}'.format(epoch, 0, self.train_loss_metric.avg, self.train_acc_metric.avg))
+        
+       
+       #print('Epoch: {}, iter: {}, loss: {}, acc: {}'.format(epoch, 0, self.train_loss_metric.avg, self.train_acc_metric.avg))
 
             
             
