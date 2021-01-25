@@ -1,5 +1,5 @@
-#output_dir: '/content/drive/MyDrive/preprocess/experiments/output'
-#log_dir: '/content/drive/MyDrive/preprocess/experiments/log'
+output_dir: '/content/drive/MyDrive/preprocess/experiments/output'
+log_dir: '/content/drive/MyDrive/preprocess/experiments/log'
 output_dir: 'experiments/output'
 log_dir: 'experiments/log'
 
@@ -33,10 +33,10 @@ train:
   batch_size: 50
   optimizer: 'adam'
   lr: 0.001
-  num_epochs: 50
+  num_epochs: 100
   loss:
     beta: 0.5
 
 test:
-  batch_size: 10
+  batch_size: 50
   score_type: 'pixel' # types = (pixel, binary, combined)
