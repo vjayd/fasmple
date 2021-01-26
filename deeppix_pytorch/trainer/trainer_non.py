@@ -69,6 +69,9 @@ class Trainer_Resnet(BaseTrainer):
         tp , fp, tn, fn = 0, 0, 0, 0
         spoof = 0
         
+        pytorch_total_params = sum(p.numel() for p in self.network.parameters() if p.requires_grad)
+        print(pytorch_total_params) 
+        
         for i, (img, label) in enumerate(self.trainloader):
             img, label = img.to(self.device),  label.to(self.device)
             net_label = self.network(img)
@@ -102,13 +105,13 @@ class Trainer_Resnet(BaseTrainer):
             # Update metrics
             self.train_loss_metric.update(loss.item())
             self.train_acc_metric.update(acc)
-            break
-        print('Total live images ',(total-spoof),' : Total spoof images ',spoof)
-        print('Accuracy of the network on the train images: %d %%' % (
-            100 * correct / total))
-        precision =  tp/(tp+fp) #The proportion of 
-        recall =  tp/(tp+fn)
-        print('Precision ', precision, 'Recall ', recall)
+            #break
+#        print('Total live images ',(total-spoof),' : Total spoof images ',spoof)
+#        print('Accuracy of the network on the train images: %d %%' % (
+#            100 * correct / total))
+#        precision =  tp/(tp+fp) #The proportion of 
+#        recall =  tp/(tp+fn)
+#        print('Precision ', precision, 'Recall ', recall)
         print('Epoch: {}, iter: {}, loss: {}, acc: {}'.format(epoch, 0, self.train_loss_metric.avg, self.train_acc_metric.avg))
 
 
@@ -149,7 +152,7 @@ class Trainer_Resnet(BaseTrainer):
 
 
              ################################################
-             spoof+=label.sum().item()
+            spoof+=label.sum().item()
             _, predicted = torch.max(net_label.data, 1)
             total += label.size(0)
             correct += (predicted == label).sum().item()
@@ -195,11 +198,14 @@ class Trainer_Resnet(BaseTrainer):
             
         n_live = total-spoof
         n_spoof = spoof
+        fn = n_spoof - tp
+        fp = n_live - tn
         apcer = tp/n_spoof #attack presentation classification error rates
         bpcer = tn/n_live #bonafide classification error rate
         acer = (apcer+ bpcer) /2   #average classification error rate
         precision =  tp/(tp+fp) 
         recall =  tp/(tp+fn)
+        
         
         print('Total live images : {},  Total spoof images : {}'.format(n_live, spoof))
         print('True positive :',tp, ' False positive :', fp, 'False Negative :', fn, 'True negative :', tn)
