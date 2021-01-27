@@ -1,7 +1,7 @@
 import os
 import torch
 from torchvision import transforms, datasets
-from trainer.trainer_non import Trainer_Resnet
+from trainer.traine import Trainer
 from torch.utils.tensorboard import SummaryWriter
 from models.loss import PixWiseBCELoss, CrossEntloss
 from datasets.PixWiseDataset import PixWiseDataset
@@ -20,8 +20,8 @@ network = build_network(cfg)
 
 optimizer = get_optimizer(cfg, network)
 
-#loss = PixWiseBCELoss(beta=cfg['train']['loss']['beta'])
-loss = CrossEntloss()
+loss = PixWiseBCELoss(beta=cfg['train']['loss']['beta'])
+#loss = CrossEntloss()
 
 writer = SummaryWriter(cfg['log_dir'])
 
@@ -44,7 +44,7 @@ test_transform = transforms.Compose([
     transforms.Normalize(cfg['dataset']['mean'], cfg['dataset']['sigma'])
 ])
 
-trainset = ResnetDataset(
+trainset = PixWiseDataset(
     root_dir=cfg['dataset']['train_data'],
     csv_file=cfg['dataset']['train_set'],
     map_size=cfg['model']['map_size'],
@@ -52,7 +52,7 @@ trainset = ResnetDataset(
     smoothing=cfg['model']['smoothing']
 )
 
-testset = ResnetDataset(
+testset = PixWiseDataset(
     root_dir=cfg['dataset']['test_data'],
     csv_file=cfg['dataset']['test_set'],
     map_size=cfg['model']['map_size'],

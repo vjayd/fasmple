@@ -45,7 +45,7 @@ class PixWiseDataset(Dataset):
         img = Image.open(img_name)
 
         label = self.data.iloc[index, 1].astype(np.float32)
-        label = np.expand_dims(label, axis=0)
+        #label = np.expand_dims(label, axis=0)
 
         if label == 1:
             mask = np.ones((1, self.map_size, self.map_size), dtype=np.float32) * self.label_weight

@@ -78,6 +78,9 @@ class Trainer(BaseTrainer):
     def train(self):
 
         for epoch in range(self.cfg['train']['num_epochs']):
+            saved_name = os.path.join(self.cfg['output_dir'], '{}_{}.pth'.format(self.cfg['model']['base'], self.cfg['dataset']['name']))
+            if os.path.exists(saved_name):
+                self.load_model()
             self.train_one_epoch(epoch)
             self.save_model(epoch)
             epoch_acc = self.validate(epoch)

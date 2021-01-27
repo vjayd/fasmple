@@ -11,15 +11,16 @@ class PixWiseBCELoss(nn.Module):
     """
     def __init__(self, beta):
         super().__init__()
-        self.criterion = nn.BCELoss()
+        self.criterion1 = nn.BCELoss()
+        self.criterion2 = nn.CrossEntropyLoss()
         self.beta = beta
 
     
     def forward(self, net_mask, net_label, target_mask, target_label):
         # https://gitlab.idiap.ch/bob/bob.paper.deep_pix_bis_pad.icb2019/blob/master/bob/paper/deep_pix_bis_pad/icb2019/config/cnn_trainer_config/oulu_deep_pixbis.py
         # Target should be the first arguments, otherwise "RuntimeError: the derivative for 'target' is not implemented"
-        loss_pixel_map = self.criterion(net_mask, target_mask)
-        loss_bce = self.criterion(net_label, target_label)
+        loss_pixel_map = self.criterion1(net_mask, target_mask)
+        loss_bce = self.criterion2(net_label, target_label)
 
         loss = self.beta * loss_bce + (1 - self.beta) * loss_pixel_map
         return loss
