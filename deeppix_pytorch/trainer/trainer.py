@@ -92,7 +92,10 @@ class Trainer(BaseTrainer):
         self.val_loss_metric.reset(epoch)
         self.val_acc_metric.reset(epoch)
 
-
+        correct = 0
+        total = 0
+        tp , fp, tn, fn = 0, 0, 0, 0
+        spoof = 0
         seed = randint(0, len(self.testloader)-1)
         
         for i, (img, mask, label) in enumerate(self.testloader):
@@ -103,13 +106,55 @@ class Trainer(BaseTrainer):
             # Calculate predictions
             preds, score = predict(net_mask, net_label, score_type=self.cfg['test']['score_type'])
             targets, _ = predict(mask, label, score_type=self.cfg['test']['score_type'])
+            
+            #####################################################################
+            true=(targets==preds)
+            false=(~true)
+            pos=(preds==1)
+            neg=(~pos)
+            keep=(targets==0)
+            tp+=(true*pos).sum().item()
+            fp+=(false*pos*keep).sum().item()
+            fn+=(false*neg*keep).sum().item()
+            tn+=(true*neg).sum().item()
+            
+            # Calculate predictions
+            #preds, _ = predict(net_mask, net_label, score_type=self.cfg['test']['score_type'])
+            #targets, _ = predict(mask, label, score_type=self.cfg['test']['score_type'])
+            #acc = calc_acc(predicted, label)
+            
+            
+            
+            
+            
+            
             acc = calc_acc(preds, targets)
             # Update metrics
             self.val_loss_metric.update(loss.item())
             self.val_acc_metric.update(acc)
 
             
-            if i == seed:
-                add_images_tb(self.cfg, epoch, img, preds, targets, score, self.writer)
+#            if i == seed:
+#                add_images_tb(self.cfg, epoch, img, preds, targets, score, self.writer)
+
+
+
+        n_live = total-spoof
+        n_spoof = spoof
+        fn = n_spoof - tp
+        fp = n_live - tn
+        apcer = fn/n_spoof   #attack presentation classification error rates
+        bpcer = fp/n_live 
+        acer = (apcer+ bpcer) /2   #average classification error rate
+        precision =  tp/(tp+fp) 
+        recall =  tp/(tp+fn)
+        
+        
+        print('Total live images : {},  Total spoof images : {}'.format(n_live, spoof))
+        print('True positive :',tp, ' False positive :', fp, 'False Negative :', fn, 'True negative :', tn)
+        print('APCER : {}, BPCER : {}, ACER :{}, Precision :{}, Recall :{} '.format(apcer, bpcer, acer, precision, recall))
+        print('Accuracy of the network on the test images: %d %%' % (
+            100 * correct / total))
+
 
         return self.val_acc_metric.avg

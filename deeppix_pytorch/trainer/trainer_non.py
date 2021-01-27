@@ -200,8 +200,8 @@ class Trainer_Resnet(BaseTrainer):
         n_spoof = spoof
         fn = n_spoof - tp
         fp = n_live - tn
-        apcer = tp/n_spoof #attack presentation classification error rates
-        bpcer = tn/n_live #bonafide classification error rate
+        apcer = fn/n_spoof   #attack presentation classification error rates
+        bpcer = fp/n_live 
         acer = (apcer+ bpcer) /2   #average classification error rate
         precision =  tp/(tp+fp) 
         recall =  tp/(tp+fn)
